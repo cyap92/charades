@@ -5,26 +5,26 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 
-public class GameListManager : MonoBehaviour
+public class CategoryListManager : MonoBehaviour
 {
-    private List<GameList> gameLists = new List<GameList>();
+    private List<CategoryList> categoryLists = new List<CategoryList>();
     void Start()
     {
         CopyJsonFiles(Path.Combine(Application.streamingAssetsPath,"default_game_lists"), Application.persistentDataPath);
         LoadGameLists();
     }
 
-    public List<GameList> GetGameLists()
+    public List<CategoryList> GetGameLists()
     {
-        return gameLists;
+        return categoryLists;
     }
     private void LoadGameLists()
     { 
         foreach (string fileContent in ReadFilesFromFolder(Application.persistentDataPath))
         {
             //Debug.Log(fileContent);
-            GameList gameList = JsonConvert.DeserializeObject<GameList>(fileContent);
-            gameLists.Add(gameList);
+            CategoryList gameList = JsonConvert.DeserializeObject<CategoryList>(fileContent);
+            categoryLists.Add(gameList);
         }
     }
 
@@ -72,7 +72,7 @@ public class GameListManager : MonoBehaviour
                 string destFile = Path.Combine(destinationFolder, fileName);
 
                 // Copy the file to the destination
-                File.Copy(file, destFile, false); // 'true' to overwrite if file already exists
+                File.Copy(file, destFile, true); // 'true' to overwrite if file already exists
             }
 
             Console.WriteLine("JSON files copied successfully.");
@@ -85,13 +85,13 @@ public class GameListManager : MonoBehaviour
 }
 
 [SerializeField]
-public struct GameList
+public struct CategoryList
 {
     public string listName;
     public string listDescription;
     public List<string> list;
 
-    public GameList(string listName, string listDescription, List<string> list)
+    public CategoryList(string listName, string listDescription, List<string> list)
     {
         this.listName = listName;
         this.listDescription = listDescription;

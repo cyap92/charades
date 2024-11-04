@@ -7,8 +7,6 @@ using UnityEngine.UI;
 
 public class RotationManager: MonoBehaviour
 {
-    [SerializeField] private Image bg;
-
     [SerializeField] private float gyroForwardMin = -.6f;
     [SerializeField] private float gyroForwardMax = .6f;
 
@@ -18,7 +16,7 @@ public class RotationManager: MonoBehaviour
         get => currentRotation;
     }
     
-public EventHandler<RotationState> OnRotationChange;
+    public EventHandler<RotationState> OnRotationChange;
 
     void Awake()
     {
@@ -27,13 +25,14 @@ public EventHandler<RotationState> OnRotationChange;
 
     void Update()
     {
+#if !UNITY_EDITOR
         switch(GetCurrentRotation())
         {
             case RotationState.Down:
                 if (currentRotation != RotationState.Down)
                 {
                     currentRotation = RotationState.Down;
-                    bg.color = Color.red;
+                    //bg.color = Color.red;
                     OnRotationChange?.Invoke(this, currentRotation);
                 }
                 break;
@@ -41,7 +40,7 @@ public EventHandler<RotationState> OnRotationChange;
                 if (currentRotation != RotationState.Up)
                 {
                     currentRotation = RotationState.Up;
-                    bg.color = Color.green;
+                    //bg.color = Color.green;
                     OnRotationChange?.Invoke(this, currentRotation);
                 }
                 break;
@@ -49,13 +48,24 @@ public EventHandler<RotationState> OnRotationChange;
                 if (currentRotation != RotationState.Forward)
                 {
                     currentRotation = RotationState.Forward;
-                    bg.color = Color.blue;
+                    //bg.color = Color.blue;
                     OnRotationChange?.Invoke(this, currentRotation);
                 }
                 break;
         }
+#else
+
+        if (Input.GetKeyDown(KeyCode.Space)) 
+        {
+            OnRotationChange?.Invoke(this, RotationState.Down);
+        }
+        if(Input.GetKeyDown(KeyCode.P))
+        {
+            OnRotationChange?.Invoke(this, RotationState.Up);
+        }
         //gravity.text = ""+Input.gyro.gravity.y;
     }
+#endif
 
     private RotationState GetCurrentRotation()
     {
