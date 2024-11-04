@@ -16,6 +16,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private GameObject gameListButtonPrefab;
     [SerializeField] private RadialTimer timer;
 
+    [SerializeField] private TMP_Text finalScore;
     [SerializeField] private GameObject menuRoot;
     [SerializeField] private GameObject gameRoot;
     [SerializeField] private GameObject endGameRoot;
@@ -31,6 +32,8 @@ public class GameManager : MonoBehaviour
     private int score = 0;
     void Start()
     {
+        Screen.sleepTimeout = 0;
+
         menuRoot.SetActive(true);
         gameRoot.SetActive(false);
         endGameRoot.SetActive(false);
@@ -94,12 +97,14 @@ public class GameManager : MonoBehaviour
                 guessText.color = Color.red;
             }
         }
+        finalScore.text = score.ToString();
     }
+
     public void EndGame()
     {
         while (endgameGuessRoot.childCount > 0)
         {
-            Destroy(endgameGuessRoot.GetChild(0).gameObject);
+            DestroyImmediate(endgameGuessRoot.GetChild(0).gameObject);
         }
         menuRoot.SetActive(true);
         gameRoot.SetActive(false);
