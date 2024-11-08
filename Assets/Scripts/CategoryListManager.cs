@@ -1,16 +1,19 @@
 using Newtonsoft.Json;
 using NUnit.Framework;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
+using UnityEngine.Networking;
 
 public class CategoryListManager : MonoBehaviour
 {
     private List<CategoryList> categoryLists = new List<CategoryList>();
-    void Start()
+
+    void Awake()
     {
-        CopyJsonFiles(Path.Combine(Application.streamingAssetsPath,"default_game_lists"), Application.persistentDataPath);
+        //CopyJsonFiles(Path.Combine(Application.streamingAssetsPath,"default_game_lists"), Application.persistentDataPath);
         LoadGameLists();
     }
 
@@ -18,40 +21,70 @@ public class CategoryListManager : MonoBehaviour
     {
         return categoryLists;
     }
+
     private void LoadGameLists()
-    { 
-        foreach (string fileContent in ReadFilesFromFolder(Application.persistentDataPath))
+    {
+        List<string> fileContents = ReadFilesFromFolder();
+        foreach (string fileContent in fileContents)
         {
-            //Debug.Log(fileContent);
             CategoryList gameList = JsonConvert.DeserializeObject<CategoryList>(fileContent);
             categoryLists.Add(gameList);
         }
     }
 
-    public List<string> ReadFilesFromFolder(string folderPath)
+    private List<string> ReadFilesFromFolder()
     {
-        List<string> fileContents = new List<string>();
-
-        try
+        List<string> ret = new List<string>();
+        TextAsset[] gameLists = Resources.LoadAll<TextAsset>("GameLists/");
+        foreach(TextAsset gameList in gameLists)
         {
-            // Get all files from the specified folder
-            string[] files = Directory.GetFiles(folderPath);
-
-            foreach (string file in files)
-            {
-                // Read the content of each file and add to the list
-                string content = File.ReadAllText(file);
-                fileContents.Add(content);
-            }
+            //Debug.Log(gameList.text);
+            ret.Add(gameList.text);
         }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"An error occurred: {ex.Message}");
-        }
-
-        return fileContents;
+        return ret;
     }
 
+    /*
+    public IEnumerator ReadFilesFromFolder()
+    {
+        fileContents = new List<string>();
+#if UNITY_ANDROID && !UNITY_EDITOR
+        string folderPath = Path.Combine("jar:file://" + Application.dataPath + "!/assets", "default_game_lists");
+#else
+        string folderPath = Path.Combine( Application.streamingAssetsPath, "default_game_lists");
+#endif
+        string[] files = Directory.GetFiles(folderPath);
+
+        foreach (string filePath in files)
+        {
+            // UnityWebRequest requires the path to be in URL format
+            string url = Path.Combine(folderPath, Path.GetFileName(filePath));
+
+            if (url.EndsWith(".json"))
+            {
+                using (UnityWebRequest request = UnityWebRequest.Get(url))
+                {
+                    // Wait for the request to complete
+                    yield return request.SendWebRequest();
+
+                    if (request.result == UnityWebRequest.Result.Success)
+                    {
+                        // Add file content to the list
+                        fileContents.Add(request.downloadHandler.text);
+                        Debug.Log($"Content of {Path.GetFileName(filePath)}:\n{request.downloadHandler.text}");
+                    }
+                    else
+                    {
+                        Debug.LogError($"Failed to read file {Path.GetFileName(filePath)}: {request.error}");
+                    }
+                }
+            }
+        }
+
+        // All files read successfully, do something with fileContents if needed
+        // For example, you could combine them, store them, etc.
+    }
+    */
     public void CopyJsonFiles(string sourceFolder, string destinationFolder)
     {
         try

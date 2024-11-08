@@ -64,8 +64,8 @@ public class RotationManager: MonoBehaviour
             OnRotationChange?.Invoke(this, RotationState.Up);
         }
         //gravity.text = ""+Input.gyro.gravity.y;
-    }
 #endif
+    }
 
     private RotationState GetCurrentRotation()
     {

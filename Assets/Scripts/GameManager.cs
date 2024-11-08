@@ -28,6 +28,7 @@ public class GameManager : MonoBehaviour
     private List<Tuple<string,bool>> currentGameGuesses;
     private List<string> fullCategoryList;
     private string currentClue;
+    private bool isPlaying = false;
 
     private int score = 0;
     void Start()
@@ -40,6 +41,12 @@ public class GameManager : MonoBehaviour
 
         rotationManager.OnRotationChange += OnRotationChange;
 
+        OnGameListsLoaded(null, null);
+
+
+    }
+    private void OnGameListsLoaded(object sender, EventArgs e)
+    {
         foreach (CategoryList categoryList in categoryListManager.GetGameLists())
         {
             GameObject gameListButton = Instantiate(gameListButtonPrefab, gameGridRoot);
@@ -56,6 +63,7 @@ public class GameManager : MonoBehaviour
         currentCategoryList = new List<string>(gameList.list);
         fullCategoryList = new List<string>(gameList.list);
         currentGameGuesses = new List<Tuple<string,bool>>();
+        isPlaying = true;
 
         //get first clue
         int startingClueIndex = UnityEngine.Random.Range(0, currentCategoryList.Count);
@@ -70,7 +78,7 @@ public class GameManager : MonoBehaviour
 
     private IEnumerator GameLoop()
     {
-        
+    
         menuRoot.SetActive(false);
         gameRoot.SetActive(true);
 
@@ -102,6 +110,7 @@ public class GameManager : MonoBehaviour
 
     public void EndGame()
     {
+        isPlaying = false;
         while (endgameGuessRoot.childCount > 0)
         {
             DestroyImmediate(endgameGuessRoot.GetChild(0).gameObject);
@@ -113,6 +122,10 @@ public class GameManager : MonoBehaviour
 
     private void OnRotationChange(object sender, RotationManager.RotationState e)
     {
+        if (!isPlaying)
+        {
+            return;
+        }
         switch (e)
         {
             case RotationManager.RotationState.Down:
